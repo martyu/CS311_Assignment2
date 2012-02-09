@@ -14,6 +14,8 @@ using namespace std; // TAKE THIS OUT!!!
 
 int parse_words(std::vector<std::string> *temp_words_vec);
 vector<string>* merge_sort(vector<string> *temp_words_vec);
+int write_to_pipe(int pipe_file_desc);
+int read_from_pipe(int pipe_file_desc);
 
 int main (int argc, char * argv[])
 {	
@@ -96,6 +98,12 @@ vector<string>* merge_sort(vector<string> *temp_words_vec)
 	}
 	
 	return NULL;
+}
+
+
+int write_to_pipe(int pipe_file_desc)
+{
+	FILE *pipe_in_stream = fdopen(pipe_file_desc, "w");
 }
 
 
