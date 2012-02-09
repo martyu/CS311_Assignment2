@@ -12,20 +12,58 @@
 
 using namespace std; // TAKE THIS OUT!!!
 
-int parse_words(std::vector<std::string> *temp_words_vec);
+typedef int fd_t; // file descriptor type
+
+int parse_words(vector< vector<string> > &temp_word_vec);
 vector<string>* merge_sort(vector<string> *temp_words_vec);
 int write_to_pipe(int pipe_file_desc);
 int read_from_pipe(int pipe_file_desc);
 
 int main (int argc, char * argv[])
 {	
-//	int num_of_proc = atoi(argv[1]);
+	int num_of_proc = atoi(argv[1]);
+	fd_t fd_arr[num_of_proc];
+	fd_t parent_to_child_pipe[2];
+	fd_t child_to_parent_pipe[2];
+	vector< vector<string> > word_vec(num_of_proc, vector<string>());
 	
+	if(pipe(parent_to_child_pipe) == -1 || pipe(child_to_parent_pipe) == -1)
+	{
+		cout << stderr << "Pipe failed. Exiting\n";
+		return -1;
+	}
+	
+	parse_words(word_vec);
+		
+	for(int i = 0; i < num_of_proc; i++)
+	{
+		if((fd_arr[i] = fork()) == -1)
+		{
+			return -1;
+		}
+		
+		if(fd_arr[i] == 0) //child process
+		{
+			if((close(parent_to_child_pipe[0])) == -1)
+				return -1;
+			   
+			if((close(child_to_parent_pipe[1])) == -1)
+				return -1;
+			
+			break;
+		}
+	}
+	
+	
+	
+	
+	
+	
+	/*
 	std::vector<std::string> words_vector;
 	parse_words(&words_vector);
 	merge_sort(&words_vector);
 	
-	/*
 	for (vector<string>::iterator i = right_half_words.begin(); i != right_half_words.end(); ++i)
 	std::cout << *i;	
 	*/
@@ -34,28 +72,23 @@ int main (int argc, char * argv[])
 }
 
 
-int parse_words(std::vector<std::string> *temp_word_vec)
+
+int parse_words(vector< vector<string> > &temp_word_vec)
 {
-	char temp_word[MAX_WORD_LENGTH];
+	char word[3];
+	int proc_index = 0; //index of word arr for child process "proc_index"
 	
-	while(std::fgets(temp_word, MAX_WORD_LENGTH, stdin))
+	while (fscanf (stdin, "%s", &word) != EOF)
 	{
-		for(int i = 0; i < strlen(temp_word); i++)
-			temp_word[i] = tolower(temp_word[i]);
-		
-		temp_word_vec->push_back(temp_word);
-	}
-	
-	int errChk = ferror(stdin);
-	if(errChk != 0){
-		perror("There was an error");
-		return errChk;
+		temp_word_vec[proc_index++].push_back(word);
+		if(proc_index == 3)
+			proc_index = 0;
 	}
 	
 	return 0;
 }
 
-
+/*
 vector<string>* merge_sort(vector<string> *temp_words_vec)
 {
 	if(temp_words_vec->size() <= 1){
@@ -103,8 +136,9 @@ vector<string>* merge_sort(vector<string> *temp_words_vec)
 
 int write_to_pipe(int pipe_file_desc)
 {
-	FILE *pipe_in_stream = fdopen(pipe_file_desc, "w");
+	FILE *pipe_in_stream = fdopen(<#int#>, <#const char *#>)
 }
 
 
 
+*/
