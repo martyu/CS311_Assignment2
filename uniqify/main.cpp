@@ -1,3 +1,4 @@
+#define _POSIX_SOURCE
 
 #include <iostream>
 #include <string.h>
@@ -64,29 +65,29 @@ int main (int argc, char * argv[])
 				break;
 				
 			case 0: //child process
-				close(pipes_to_parent[i][1]);
-				close(pipes_to_sort[i][0]);
-				if (pipes_to_parent[i][0] != STDOUT_FILENO)
+				close(pipes_to_parent[i][0]);
+				close(pipes_to_sort[i][1]);
+				if (pipes_to_parent[i][1] != STDOUT_FILENO)
 				{
 //					cout << "point1\n";
-					if (dup2(pipes_to_parent[i][0], STDOUT_FILENO) == -1)
+					if (dup2(pipes_to_parent[i][1], STDOUT_FILENO) == -1)
 					{
 						cout << "dup2 error 1: " << strerror(errno) << "\n";
 						return -1;
 					}
 //					cout << "point2\n";
-					close(pipes_to_parent[i][0]);
+					close(pipes_to_parent[i][1]);
 				}
-				if (pipes_to_sort[i][1] != STDIN_FILENO)
+				if (pipes_to_sort[i][0] != STDIN_FILENO)
 				{
 //					cout << "point3\n";
-					if (dup2(pipes_to_sort[i][1], STDIN_FILENO) == -1)
+					if (dup2(pipes_to_sort[i][0], STDIN_FILENO) == -1)
 					{
 						cout << "Pipe error 2: " << strerror(errno) << "\n";
 						return -1;
 					}
 //					cout << "point4\n";
-					close(pipes_to_sort[i][1]);
+					close(pipes_to_sort[i][0]);
 				}
 //				cout << "point5\n";
 				execl("bin/sort", "sort");
@@ -95,8 +96,8 @@ int main (int argc, char * argv[])
 		
 			default:	//parent process
 //				cout << "point6\n";
-				close(pipes_to_sort[i][1]);
-				close(pipes_to_parent[i][0]);
+				close(pipes_to_sort[i][0]);
+				close(pipes_to_parent[i][1]);
 				break;
 		}		
 	}
@@ -136,7 +137,7 @@ int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_ve
 {
 	cout << "point8\n";
 	FILE *pipe_write_to_sort[temp_word_vec.size()];
-	int num_words_read;
+	int num_words_read = 0;
 	int total_words = 0;
 	cout << "point9\n";
 	
@@ -150,26 +151,33 @@ int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_ve
 		
 	for(int i = 0; i < temp_word_vec.size(); i++)
 	{
-		cout << "point21\n";
-
-		pipe_write_to_sort[i] = fdopen(pipes_to_sort[i][0], "r");
+		if((pipe_write_to_sort[i] = fdopen(pipes_to_sort[i][1], "w")) == NULL)
+		{
+			cout << "error fdopen: " << strerror(errno) << "\n";
+		}
 		
+		cout << "pipe write to sort: " << pipe_write_to_sort[i] << "\n";
+
 	}
+	
 	
 	cout << "point22\n";
 
 	for(int i = 0; num_words_read < total_words; i++)
 	{
 		cout << "point23\n";
-
-		for (int j = 0; j < temp_word_vec.size(); j++)
+		cout << "temp word vec size = " << temp_word_vec.size() << "\n";
+		for (int j = 0; j < temp_word_vec.size() && num_words_read < total_words; j++)
 		{
+			cout << "num words read = " << num_words_read << "\ntotal words = " << total_words << "\n";
 			cout << "point24\n";
+			cout << "temp_word_vec[" << j << "][" << i << "] = " << temp_word_vec[j][i].c_str() << "\n";
+			cout << "pipe_write_to_sort[" << j << "] = " << pipe_write_to_sort[j] << "\n";
 			fputs(temp_word_vec[j][i].c_str(), pipe_write_to_sort[j]);
 			cout << "point25\n";
 			num_words_read++;
 			cout << "point26\n";
-			fflush(pipe_write_to_sort[j]);
+//			fflush(pipe_write_to_sort[j]);
 			cout << "point27\n";
 		}
 	}
@@ -190,7 +198,7 @@ int read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes)
 	for (int i = 0; i < num_of_pipes; i++)
 	{
 
-		pipe_read_from_sort[i] = fdopen(pipes_to_parent[i][1], "w");
+		pipe_read_from_sort[i] = fdopen(pipes_to_parent[i][0], "r");
 		
 	}
 	cout << "point12\n";
