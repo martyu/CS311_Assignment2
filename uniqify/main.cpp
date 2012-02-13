@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sstream>
+#include <algorithm>
 
 #define MAX_WORD_LENGTH 30 // longest english word length
 
@@ -22,6 +23,7 @@ typedef int fd_t; // file descriptor type
 int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists);
 int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_vec);
 vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes);
+void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec);
 
 int main (int argc, char * argv[])
 {
@@ -29,6 +31,7 @@ int main (int argc, char * argv[])
 	fd_t pipes_to_parent[num_of_proc][2];
 	fd_t pipes_to_sort[num_of_proc][2];
 	vector< vector<string> > word_vec(num_of_proc, vector<string>());
+	vector< vector<string> > sorted_vecs_of_words;
 	
 	parse_words(word_vec, num_of_proc);
 	
@@ -85,14 +88,14 @@ int main (int argc, char * argv[])
 				
 //				cerr << "point 6\n";
 				
-/*				for(int j = 0; j < num_of_proc; j++) // close pipes
+				for(int j = 0; j < num_of_proc; j++) // close pipes
 				{
-					close(pipes_to_sort[j][0]);
-					close(pipes_to_sort[j][1]);
-					close(pipes_to_parent[j][0]);
-					close(pipes_to_parent[j][1]);
+//					close(pipes_to_sort[j][0]); NOT SURE WHY COMMENTING THIS OUT MAKES IT WORK...?
+//					close(pipes_to_sort[j][1]);
+//					close(pipes_to_parent[j][0]);
+//					close(pipes_to_parent[j][1]);
 				}
-*/
+
 				ostringstream oss;
 				oss << "output" << i << ".txt";
 				string filename = oss.str();
@@ -121,10 +124,10 @@ int main (int argc, char * argv[])
 	
 	cerr << "point 10\n";
 
-	read_from_sort(pipes_to_parent, num_of_proc);
+	sorted_vecs_of_words = read_from_sort(pipes_to_parent, num_of_proc);
 	
 	cout << "waiting for children\n";
-	
+		
 	while (wait(NULL) != -1)
 	{
 		cerr << "waiting...\n";
@@ -136,8 +139,11 @@ int main (int argc, char * argv[])
 		cout << "wait error: " << strerror(errno) << "\n";
 		return -1;
 	}
+	
+	print_sorted_subvectors(sorted_vecs_of_words);
 
-		
+	cout << "success, exiting...\n";
+	
 	return 0;
 }
 
@@ -257,10 +263,10 @@ vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pi
 			sorted_word_vecs[i].push_back(word);
 
 			cerr << "inside while3\n";
-		}
-		cerr << "error is: " << strerror(errno) << "\n";
-		
+		}		
 		cerr << "point 15\n";
+		
+		fclose(pipe_read_from_sort[i]);
 
 	}
 	
@@ -276,6 +282,36 @@ vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pi
 
 	return sorted_word_vecs;
 }
+
+
+void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec)
+{	
+	vector<string> first_words_in_subvecs;
+	vector<string> words_already_printed;
+	string min_word;
+	string possible_word;
+	
+	cout << "word: " << sorted_subsets_vec[0][0] << "\n";
+	
+	for (int i = 0; i < sorted_subsets_vec.size(); i++)
+	{
+		for(int j = 0; j < sorted_subsets_vec.size(); j++)
+		{
+			cout << "loop " << j << "\n";
+			possible_word = sorted_subsets_vec[j][0];
+			if(!binary_search(words_already_printed.begin(), words_already_printed.end(), possible_word))
+			   first_words_in_subvecs.push_back(sorted_subsets_vec[j][0]);
+		}
+		
+		min_word = *min_element(first_words_in_subvecs.begin(), first_words_in_subvecs.end());
+		if(binary_search(words_already_printed.begin(), words_already_printed.end(), min_word))
+			cout << "min: " << *min_element(first_words_in_subvecs.begin(), first_words_in_subvecs.end());
+		
+	}
+	
+}
+
+
 
 
 
