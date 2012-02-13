@@ -21,7 +21,7 @@ typedef int fd_t; // file descriptor type
 
 int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists);
 int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_vec);
-int read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes);
+vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes);
 
 int main (int argc, char * argv[])
 {
@@ -218,14 +218,14 @@ int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_ve
 }
 
 
-int read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes)
+vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes)
 {
 	cerr << "point 11\n";
-
-	vector< vector<char*> > sorted_word_vecs;
+	
+	vector< vector<string> > sorted_word_vecs;
 	FILE *pipe_read_from_sort[num_of_pipes];
 	char word_read[MAX_WORD_LENGTH];
-//	string word;
+	string word;
 
 	cerr << "point 12\n";
 	
@@ -244,15 +244,17 @@ int read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes)
 		
 		cerr << "pipe_read_from_sort[" << i << "] = " << pipe_read_from_sort[i] << "\n";
 		
+		sorted_word_vecs.push_back(vector<string>());
+		
 		while (fgets(word_read, MAX_WORD_LENGTH, pipe_read_from_sort[i]) != NULL)
 		{
 			cerr << "inside while\n";
-//			word = word_read;
+			word = word_read;
 			
 			cerr << "inside while2\n";
 		
-			cerr << "\n\nword read is " << word_read << "\n\n";
-//			sorted_word_vecs[i].push_back(word_read);
+			cerr << "\n\nword is " << word << "\n\n";
+			sorted_word_vecs[i].push_back(word);
 
 			cerr << "inside while3\n";
 		}
@@ -272,7 +274,7 @@ int read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes)
 	
 	cerr << "point 16\n";
 
-	return 0;
+	return sorted_word_vecs;
 }
 
 
