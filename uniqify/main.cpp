@@ -61,7 +61,7 @@ int main (int argc, char * argv[])
 			{
 				close(pipes_to_parent[i][0]);
 				close(pipes_to_sort[i][1]);
-				
+				cout.flush();
 //				cerr << "point 4\n";
 
 				if (pipes_to_parent[i][1] != STDOUT_FILENO)
@@ -85,19 +85,19 @@ int main (int argc, char * argv[])
 				
 //				cerr << "point 6\n";
 				
-				for(int j = 0; j < num_of_proc; j++) // close pipes
+/*				for(int j = 0; j < num_of_proc; j++) // close pipes
 				{
 					close(pipes_to_sort[j][0]);
 					close(pipes_to_sort[j][1]);
 					close(pipes_to_parent[j][0]);
 					close(pipes_to_parent[j][1]);
 				}
-				
+*/
 				ostringstream oss;
 				oss << "output" << i << ".txt";
 				string filename = oss.str();
 								
-				execl("/bin/sort", "sort", "-o", filename.c_str(), (char *) NULL);
+				execl("/bin/sort", "sort", (char *) NULL);
 				cerr << "sort error: " << strerror(errno) << "\n";
 				return -1;
 			}
@@ -157,7 +157,6 @@ int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists)
 		}
 		word[index] = '\n';
 		word[index+1] = '\0';
-		cout << "word is: " << word;
 		temp_word_vec[proc_index++].push_back(word);
 		if(proc_index == num_of_sub_lists)
 			proc_index = 0;
@@ -195,13 +194,15 @@ int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_ve
 		for (int j = 0; j < temp_word_vec.size() && num_words_wrote < total_words; j++)
 		{
 			cerr << "temp_word_vec[" << j << "][" << i << "] = " << temp_word_vec[j][i].c_str();
-			
+			cout.flush();
 			if((fputs(temp_word_vec[j][i].c_str(), pipe_write_to_sort[j]) == EOF))
 			{
 				return -1;
 			}
 			num_words_wrote++;
 		}
+		cout << "number of words wrote to pipe" << i << ": " << num_words_wrote << "\n";
+
 	}
 	
 	for(int i = 0; i < temp_word_vec.size(); i++)
@@ -221,10 +222,10 @@ int read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes)
 {
 	cerr << "point 11\n";
 
-	vector< vector<string> > sorted_word_vecs;
+	vector< vector<char*> > sorted_word_vecs;
 	FILE *pipe_read_from_sort[num_of_pipes];
 	char word_read[MAX_WORD_LENGTH];
-	string word;
+//	string word;
 
 	cerr << "point 12\n";
 	
@@ -246,10 +247,13 @@ int read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes)
 		while (fgets(word_read, MAX_WORD_LENGTH, pipe_read_from_sort[i]) != NULL)
 		{
 			cerr << "inside while\n";
-			word = word_read;
+//			word = word_read;
+			
 			cerr << "inside while2\n";
-			cerr << "word is " << word << "\nword read is " << word_read;
-			sorted_word_vecs[i].push_back(word);
+		
+			cerr << "\n\nword read is " << word_read << "\n\n";
+//			sorted_word_vecs[i].push_back(word_read);
+
 			cerr << "inside while3\n";
 		}
 		cerr << "error is: " << strerror(errno) << "\n";
