@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sstream>
 #include <algorithm>
+#include <list>
 
 #define MAX_WORD_LENGTH 30 // longest english word length
 
@@ -274,11 +275,10 @@ vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pi
 	{
 		for(int j = 0; j < sorted_word_vecs[i].size(); j++)
 		{
-			cout << "word at [" << i << "][" << j << "] = " << sorted_word_vecs[i][j] << "\n";
+			cout << sorted_word_vecs[i][j];
 		}
 	}
 	
-	cerr << "point 16\n";
 
 	return sorted_word_vecs;
 }
@@ -290,23 +290,55 @@ void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec)
 	vector<string> words_already_printed;
 	string min_word;
 	string possible_word;
+	int min_word_index;
+	vector<string>::iterator min_word_iterator;
 	
-	cout << "word: " << sorted_subsets_vec[0][0] << "\n";
-	
+	//reverse order to make removing duplicate words faster
 	for (int i = 0; i < sorted_subsets_vec.size(); i++)
 	{
+		reverse(sorted_subsets_vec[i].begin(), sorted_subsets_vec[i].end());
+	}
+	
+	for (int i = 0; i < sorted_subsets_vec.size(); i++) // go thru and get last element of each sub vector until they're gone
+	{
+		// go thru last elements of each subvector, check if they've already been added to first_words vector, delete if they have.
 		for(int j = 0; j < sorted_subsets_vec.size(); j++)
 		{
-			cout << "loop " << j << "\n";
-			possible_word = sorted_subsets_vec[j][0];
-			if(!binary_search(words_already_printed.begin(), words_already_printed.end(), possible_word))
-			   first_words_in_subvecs.push_back(sorted_subsets_vec[j][0]);
+			possible_word = sorted_subsets_vec[j].back();
+			
+			//go thru subvector (from back) until new word is found
+			while(binary_search(words_already_printed.begin(), words_already_printed.end(), possible_word))
+			{	
+				sorted_subsets_vec[j].pop_back();
+				possible_word = sorted_subsets_vec[j].back();
+			}
+			
+			// add unique word to first words vector
+			first_words_in_subvecs.push_back(possible_word);
+			
 		}
 		
-		min_word = *min_element(first_words_in_subvecs.begin(), first_words_in_subvecs.end());
-		if(binary_search(words_already_printed.begin(), words_already_printed.end(), min_word))
-			cout << "min: " << *min_element(first_words_in_subvecs.begin(), first_words_in_subvecs.end());
 		
+		while(!sorted_subsets_vec.empty())
+		{
+			min_word_iterator = min_element(first_words_in_subvecs.begin(), first_words_in_subvecs.end());
+			min_word = *min_word_iterator;
+			min_word_index = (int)(find(first_words_in_subvecs.begin(), first_words_in_subvecs.end(), min_word) - first_words_in_subvecs.begin());
+			
+			cout << min_word;
+		
+			if(!sorted_subsets_vec[min_word_index].empty())
+			{
+				replace(min_word_iterator, min_word_iterator, 
+						min_word, sorted_subsets_vec[min_word_index].back());
+				sorted_subsets_vec[min_word_index].pop_back();
+			}
+			else
+			{
+				first_words_in_subvecs.erase(min_word_iterator);
+				sorted_subsets_vec.erase(sorted_subsets_vec.begin()+min_word_index);
+			}
+		}
 	}
 	
 }
