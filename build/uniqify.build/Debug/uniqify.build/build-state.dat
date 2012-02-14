@@ -24,20 +24,20 @@ t1329093771
 s125
 
 N/Users/Marty/Documents/School/Operating Systems/uniqify/uniqify/main.cpp
-c000000004F39B77A0000000000001ECA
-t1329182586
-s7882
+c000000004F39BBE50000000000001FD3
+t1329183717
+s8147
 
 CBuild AST from "/Users/Marty/Documents/School/Operating Systems/uniqify/uniqify/main.cpp"
 r0
 
 CCheck dependencies
 r0
-lSLF04#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependenciesad4bb114f1e9b441^2e1ab214f1e9b441^---0#1#0#--18"Check dependencies36"148317B9-AEA2-4366-B75C-F410F9964AC8-
+lSLF04#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependencies897986bdf3e9b441^cbbf86bdf3e9b441^---0#1#0#--18"Check dependencies36"C1B0C380-5793-4700-ADB3-FFA61FBB7C0E-
 
 CCompileC build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/main.o "/Users/Marty/Documents/School/Operating Systems/uniqify/uniqify/main.cpp" normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s350875386.275653
-e350875386.840128
+s350876605.528290
+e350876605.931118
 r1
 xCompileC
 xbuild/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/main.o
@@ -46,15 +46,15 @@ xnormal
 xx86_64
 xc++
 xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF04#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection80"Compile /Users/Marty/Documents/School/Operating Systems/uniqify/uniqify/main.cpped0f48faeee9b441^7f67d7faeee9b441^---0#0#0#-19%DVTDocumentLocation2@90"file://localhost/Users/Marty/Documents/School/Operating%20Systems/uniqify/uniqify/main.cpp0000000000000000^2041"CompileC build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/main.o uniqify/main.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd "/Users/Marty/Documents/School/Operating Systems/uniqify"    setenv LANG en_US.US-ASCII    /Developer/usr/bin/clang -x c++ -arch x86_64 -fmessage-length=0 -fdiagnostics-print-source-range-info -fdiagnostics-show-category=id -fdiagnostics-parseable-fixits -Wno-trigraphs -fpascal-strings -O0 -Wmissing-prototypes -Wreturn-type -Wparentheses -Wswitch -Wno-unused-parameter -Wunused-variable -Wunused-value -Wshorten-64-to-32 -Wc++0x-extensions -DDEBUG=1 -isysroot /Developer/SDKs/MacOSX10.7.sdk -fasm-blocks -mmacosx-version-min=10.7 -gdwarf-2 -fvisibility-inlines-hidden -Wno-sign-conversion -iquote "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/uniqify-generated-files.hmap" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/uniqify-own-target-headers.hmap" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/uniqify-all-target-headers.hmap" -iquote "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/uniqify-project-headers.hmap" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug/include" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/DerivedSources/x86_64" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/DerivedSources" "-F/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug" -MMD -MT dependencies -MF "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/main.d" -c "/Users/Marty/Documents/School/Operating Systems/uniqify/uniqify/main.cpp" -o "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/main.o"36"D14B7680-09C9-4C63-8801-7D318D354F34-
+lSLF04#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection80"Compile /Users/Marty/Documents/School/Operating Systems/uniqify/uniqify/main.cpp255987bdf3e9b441^7d5deebdf3e9b441^---0#0#0#-19%DVTDocumentLocation2@90"file://localhost/Users/Marty/Documents/School/Operating%20Systems/uniqify/uniqify/main.cpp0000000000000000^2041"CompileC build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/main.o uniqify/main.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd "/Users/Marty/Documents/School/Operating Systems/uniqify"    setenv LANG en_US.US-ASCII    /Developer/usr/bin/clang -x c++ -arch x86_64 -fmessage-length=0 -fdiagnostics-print-source-range-info -fdiagnostics-show-category=id -fdiagnostics-parseable-fixits -Wno-trigraphs -fpascal-strings -O0 -Wmissing-prototypes -Wreturn-type -Wparentheses -Wswitch -Wno-unused-parameter -Wunused-variable -Wunused-value -Wshorten-64-to-32 -Wc++0x-extensions -DDEBUG=1 -isysroot /Developer/SDKs/MacOSX10.7.sdk -fasm-blocks -mmacosx-version-min=10.7 -gdwarf-2 -fvisibility-inlines-hidden -Wno-sign-conversion -iquote "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/uniqify-generated-files.hmap" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/uniqify-own-target-headers.hmap" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/uniqify-all-target-headers.hmap" -iquote "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/uniqify-project-headers.hmap" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug/include" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/DerivedSources/x86_64" "-I/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/DerivedSources" "-F/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug" -MMD -MT dependencies -MF "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/main.d" -c "/Users/Marty/Documents/School/Operating Systems/uniqify/uniqify/main.cpp" -o "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/main.o"36"A34A62D7-7517-4BE1-A55D-8E307AA4B837-
 
 CLd "/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug/uniqify" normal x86_64
-s350875386.851226
-e350875386.910186
+s350876605.938045
+e350876606.071261
 r1
 xLd
 x/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug/uniqify
 xnormal
 xx86_64
-lSLF04#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection80"Link /Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug/uniqify2e03dafaeee9b441^3602e9faeee9b441^---0#0#0#--630"Ld build/Debug/uniqify normal x86_64    cd "/Users/Marty/Documents/School/Operating Systems/uniqify"    setenv MACOSX_DEPLOYMENT_TARGET 10.7    /Developer/usr/bin/clang++ -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.7.sdk "-L/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug" "-F/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug" -filelist "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/uniqify.LinkFileList" -mmacosx-version-min=10.7 -o "/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug/uniqify"36"809C1253-83F8-45A4-B1F3-4E612B38AB01-
+lSLF04#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection80"Link /Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug/uniqifyf338f0bdf3e9b441^af3e12bef3e9b441^---0#0#0#--630"Ld build/Debug/uniqify normal x86_64    cd "/Users/Marty/Documents/School/Operating Systems/uniqify"    setenv MACOSX_DEPLOYMENT_TARGET 10.7    /Developer/usr/bin/clang++ -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.7.sdk "-L/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug" "-F/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug" -filelist "/Users/Marty/Documents/School/Operating Systems/uniqify/build/uniqify.build/Debug/uniqify.build/Objects-normal/x86_64/uniqify.LinkFileList" -mmacosx-version-min=10.7 -o "/Users/Marty/Documents/School/Operating Systems/uniqify/build/Debug/uniqify"36"D419348A-F0E2-4D1E-AF59-7F7840D0D15F-
 
