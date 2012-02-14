@@ -14,9 +14,8 @@
 #include <sstream>
 #include <algorithm>
 #include <list>
-#include <ctype.h>
 
-#define MAX_WORD_LENGTH 30 // longest english word length    MAKE NOTE OF THIS IN WRITEUP
+#define MAX_WORD_LENGTH 30 // longest english word length
 
 using namespace std;
 
@@ -26,7 +25,6 @@ int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists);
 int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_vec);
 vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes);
 void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec);
-void print_vector(vector<string> &vec_to_print);
 
 int main (int argc, char * argv[])
 {
@@ -36,11 +34,9 @@ int main (int argc, char * argv[])
 	vector< vector<string> > word_vec(num_of_proc, vector<string>());
 	vector< vector<string> > sorted_vecs_of_words;
 	
-	if (parse_words(word_vec, num_of_proc) == -1)
-	{
-		return -1;
-	}
+	parse_words(word_vec, num_of_proc);
 	
+//	cerr << "point 1\n";
 	for(int i = 0; i < num_of_proc; i++)
 	{
 		if (pipe(pipes_to_sort[i]) == -1)
@@ -53,6 +49,7 @@ int main (int argc, char * argv[])
 			cout << "Pipe error2: " << strerror(errno) << "\n";
 			return -1;
 		}
+//		cerr << "point 2\n";
 
 		switch (fork())
 		{
@@ -62,12 +59,14 @@ int main (int argc, char * argv[])
 				return -1;
 				break;
 			}
+//			cerr << "point 3\n";
 
 			case 0: //child process
 			{
 				close(pipes_to_parent[i][0]);
 				close(pipes_to_sort[i][1]);
 				cout.flush();
+//				cerr << "point 4\n";
 
 				if (pipes_to_parent[i][1] != STDOUT_FILENO)
 				{
@@ -76,6 +75,8 @@ int main (int argc, char * argv[])
 						return -1;
 					}
 				}
+				
+//				cerr << "point 5\n";
 
 				if (pipes_to_sort[i][0] != STDIN_FILENO)
 				{
@@ -86,42 +87,58 @@ int main (int argc, char * argv[])
 					}
 				}
 				
+//				cerr << "point 6\n";
+				
+				for(int j = 0; j < num_of_proc; j++) // close pipes
+				{
+//					close(pipes_to_sort[j][0]); NOT SURE WHY COMMENTING THIS OUT MAKES IT WORK...?
+//					close(pipes_to_sort[j][1]);
+//					close(pipes_to_parent[j][0]);
+//					close(pipes_to_parent[j][1]);
+				}
+
+				ostringstream oss;
+				oss << "output" << i << ".txt";
+				string filename = oss.str();
+								
 				execl("/bin/sort", "sort", (char *) NULL);
 				cerr << "sort error: " << strerror(errno) << "\n";
 				return -1;
 			}
 		
-			default:	//parent process
+				default:	//parent process
 			{
+				cerr << "point 7\n";
 
 				close(pipes_to_parent[i][1]);
 				close(pipes_to_sort[i][0]);
+				cerr << "point 8\n";
 
 				break;
 			}
 		}		
 	}
 	
+	cerr << "point 9\n";
+
 	write_to_sort(pipes_to_sort, word_vec);
 	
+	cerr << "point 10\n";
+
 	sorted_vecs_of_words = read_from_sort(pipes_to_parent, num_of_proc);
-			
+	
+	cout << "waiting for children\n";
+		
 	while (wait(NULL) != -1)
 	{
+		cerr << "waiting...\n";
 		continue;
 	}
 	if (errno != ECHILD)
 	{
+		cout << "point7\n";
 		cout << "wait error: " << strerror(errno) << "\n";
 		return -1;
-	}
-	
-	for(int j = 0; j < num_of_proc; j++) // close pipes
-	{
-		close(pipes_to_sort[j][0]);
-		close(pipes_to_sort[j][1]);
-		close(pipes_to_parent[j][0]);
-		close(pipes_to_parent[j][1]);
 	}
 	
 	print_sorted_subvectors(sorted_vecs_of_words);
@@ -134,37 +151,10 @@ int main (int argc, char * argv[])
 
 int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists)
 {
-	char letter;
-	char word[MAX_WORD_LENGTH+2]; // +2 makes room for a newline and null character
+	char word[MAX_WORD_LENGTH+1]; // +1 makes room for a newline character
 	int proc_index = 0; //index of word arr for child process "proc_index"
-	int index = 0;
+	int index;
 	
-
-	while (fscanf (stdin, "%c", &letter) != EOF)
-	{
-		if(isalpha(letter))
-		{
-			word[index++] = letter;
-		}
-		else if(index > MAX_WORD_LENGTH)
-		{
-			cerr << "Sorry, word " << word << "exceeds maximum allowed word length of " << MAX_WORD_LENGTH << 
-					".  If this is a major problem, please email ulrichm@onid.orst.edu, and a "
-					"revision will be considered.  Exiting...\n";
-			return -1;
-		}
-		else
-		{
-			word[index++] = '\n';
-			word[index] = '\0';
-			temp_word_vec[proc_index++].push_back(word);
-			if(proc_index == num_of_sub_lists) // loop back to beginning if at end
-				proc_index = 0;
-			index = 0;
-		}
-	}
-	
-	/*
 	while (fscanf (stdin, "%s", &word) != EOF)
 	{
 		index = 0;
@@ -178,7 +168,7 @@ int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists)
 		if(proc_index == num_of_sub_lists)
 			proc_index = 0;
 	}
-	*/
+	
 	return 0;
 }
 
@@ -210,6 +200,7 @@ int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_ve
 	{
 		for (int j = 0; j < temp_word_vec.size() && num_words_wrote < total_words; j++)
 		{
+			cerr << "temp_word_vec[" << j << "][" << i << "] = " << temp_word_vec[j][i].c_str();
 			cout.flush();
 			if((fputs(temp_word_vec[j][i].c_str(), pipe_write_to_sort[j]) == EOF))
 			{
@@ -217,49 +208,77 @@ int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_ve
 			}
 			num_words_wrote++;
 		}
+		cout << "number of words wrote to pipe" << i << ": " << num_words_wrote << "\n";
 
 	}
 	
 	for(int i = 0; i < temp_word_vec.size(); i++)
 	{
+		cerr << "closing pipe " << pipe_write_to_sort[i] << "\n";
 		if(fclose(pipe_write_to_sort[i]) == EOF)
 		{
 			cerr << "error closing pipe: " << strerror(errno) << "\n";
 		}
 	}
-	
+		
 	return 0;
 }
 
 
 vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes)
 {
+	cerr << "point 11\n";
 	
 	vector< vector<string> > sorted_word_vecs;
 	FILE *pipe_read_from_sort[num_of_pipes];
 	char word_read[MAX_WORD_LENGTH];
 	string word;
+
+	cerr << "point 12\n";
 	
 	for (int i = 0; i < num_of_pipes; i++)
 	{
+		cout << "pipes_to_parent[" << i << "][0] = " << pipes_to_parent[i][0] << "\n";
 		pipe_read_from_sort[i] = fdopen(pipes_to_parent[i][0], "r");
 	}
+
+	cerr << "point 13\n";
 	
 	for(int i = 0; i < num_of_pipes; i++)
 	{
 		fflush(NULL);
+		cerr << "point 14\n";
+		
+		cerr << "pipe_read_from_sort[" << i << "] = " << pipe_read_from_sort[i] << "\n";
 		
 		sorted_word_vecs.push_back(vector<string>());
 		
 		while (fgets(word_read, MAX_WORD_LENGTH, pipe_read_from_sort[i]) != NULL)
 		{
+			cerr << "inside while\n";
 			word = word_read;
+			
+			cerr << "inside while2\n";
+		
+			cerr << "\n\nword is " << word << "\n\n";
 			sorted_word_vecs[i].push_back(word);
 
+			cerr << "inside while3\n";
 		}		
+		cerr << "point 15\n";
+		
 		fclose(pipe_read_from_sort[i]);
 
 	}
+	
+	for(int i = 0; i < sorted_word_vecs.size(); i++)
+	{
+		for(int j = 0; j < sorted_word_vecs[i].size(); j++)
+		{
+			cout << sorted_word_vecs[i][j];
+		}
+	}
+	
 
 	return sorted_word_vecs;
 }
@@ -267,14 +286,11 @@ vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pi
 
 void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec)
 {	
-	vector<string> last_words_in_subvecs; //A list would be better for this, since insertion time is constant.  Change if I have time before deadline.
-	vector<string> words_printed;
+	vector<string> first_words_in_subvecs;
+	vector<string> words_already_printed;
 	string min_word;
 	string possible_word;
 	int min_word_index;
-	int unique_num_of_words = 0;
-	int dup_num_of_words = 0;
-	int total_num_of_words = 0;
 	vector<string>::iterator min_word_iterator;
 	
 	//reverse order to make removing duplicate words faster
@@ -282,61 +298,56 @@ void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec)
 	{
 		reverse(sorted_subsets_vec[i].begin(), sorted_subsets_vec[i].end());
 	}
-
-	// go thru last elements of each subvector
-	// this is the starting version of first_words vector
-	for(int j = 0; j < sorted_subsets_vec.size(); j++)
-	{
-		possible_word = sorted_subsets_vec[j].back();
-		
-		// add word to "first words" vector
-		last_words_in_subvecs.push_back(possible_word);
-	}
-		
-	while(!last_words_in_subvecs.empty())
-	{
-		min_word_iterator = min_element(last_words_in_subvecs.begin(), last_words_in_subvecs.end());
-		min_word = *min_word_iterator;
-		min_word_index = (int)distance(last_words_in_subvecs.begin(), min_word_iterator);			
-		
-		cout << "\nword checking: " << min_word << "in:\n";
-		print_vector(words_printed);
-
-		if(!binary_search(words_printed.begin(), words_printed.end(), min_word))
-		{
-			cout << "\nnot found\n";
-			cout << min_word;
-			unique_num_of_words++;
-			words_printed.push_back(min_word);
-		}
-		else
-		{
-			cout << "\nfound\n";
-			dup_num_of_words++;
-		}
-		total_num_of_words++;
-		
-		last_words_in_subvecs.erase(min_word_iterator);
-		if(!sorted_subsets_vec[min_word_index].empty())
-		{
-			sorted_subsets_vec[min_word_index].pop_back();
-			if(!sorted_subsets_vec[min_word_index].empty())
-				last_words_in_subvecs.insert(min_word_iterator, sorted_subsets_vec[min_word_index].back());
-		}
-	}
-		
-	cout << "Unique words read: " << unique_num_of_words << "\nDuplicate words read: " << 
-					dup_num_of_words << "\nTotal words read: " << total_num_of_words << "\n";
 	
-	print_vector(words_printed);
+	for (int i = 0; i < sorted_subsets_vec.size(); i++) // go thru and get last element of each sub vector until they're gone
+	{
+		// go thru last elements of each subvector, check if they've already been added to first_words vector, delete if they have.
+		for(int j = 0; j < sorted_subsets_vec.size(); j++)
+		{
+			possible_word = sorted_subsets_vec[j].back();
+			
+			//go thru subvector (from back) until new word is found
+			while(binary_search(words_already_printed.begin(), words_already_printed.end(), possible_word))
+			{	
+				sorted_subsets_vec[j].pop_back();
+				possible_word = sorted_subsets_vec[j].back();
+			}
+			
+			// add unique word to first words vector
+			first_words_in_subvecs.push_back(possible_word);
+			
+		}
+		
+		
+		while(!sorted_subsets_vec.empty())
+		{
+			min_word_iterator = min_element(first_words_in_subvecs.begin(), first_words_in_subvecs.end());
+			min_word = *min_word_iterator;
+			min_word_index = (int)(find(first_words_in_subvecs.begin(), first_words_in_subvecs.end(), min_word) - first_words_in_subvecs.begin());
+			
+			cout << min_word;
+		
+			if(!sorted_subsets_vec[min_word_index].empty())
+			{
+				replace(min_word_iterator, min_word_iterator, 
+						min_word, sorted_subsets_vec[min_word_index].back());
+				sorted_subsets_vec[min_word_index].pop_back();
+			}
+			else
+			{
+				first_words_in_subvecs.erase(min_word_iterator);
+				sorted_subsets_vec.erase(sorted_subsets_vec.begin()+min_word_index);
+			}
+		}
+	}
+	
 }
 
 
-void print_vector(vector<string> &vec_to_print)
-{
-	for(int i = 0; i < vec_to_print.size(); i++)
-		cout << vec_to_print[i];
-}
+
+
+
+
 
 
 
