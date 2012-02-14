@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <vector>
-#include <string.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,7 +12,6 @@
 #include <sys/types.h>
 #include <sstream>
 #include <algorithm>
-#include <list>
 #include <ctype.h>
 
 #define MAX_WORD_LENGTH 30 // longest english word length
@@ -36,7 +34,10 @@ int main (int argc, char * argv[])
 	vector< vector<string> > word_vec(num_of_proc, vector<string>());
 	vector< vector<string> > sorted_vecs_of_words;
 	
-	parse_words(word_vec, num_of_proc);
+	if(parse_words(word_vec, num_of_proc) < 0)
+	{
+		return -1;
+	}
 	
 	for(int i = 0; i < num_of_proc; i++)
 	{
@@ -142,6 +143,11 @@ int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists)
 			word[i] = tolower(word[i]);
 			if(word[i] == '\0')
 			{
+				if(i == 0)
+				{
+					word_str.clear();
+					break;
+				}
 				word_str.push_back('\n');
 				word_str.push_back('\0');
 				break;
@@ -152,10 +158,18 @@ int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists)
 			}
 		}
 		
-		temp_word_vec[proc_index++].push_back(word_str);
-		if(proc_index == num_of_sub_lists)
+		if(proc_index > num_of_sub_lists || proc_index < 0)
+		{
 			proc_index = 0;
-		word_str.clear();
+		}
+		else if(word_str.size() != 0)
+		{
+			temp_word_vec[proc_index].push_back(word_str);
+			++proc_index;
+			if(proc_index == num_of_sub_lists)
+				proc_index = 0;
+			word_str.clear();
+		}
 	}
 	
 	return 0;
