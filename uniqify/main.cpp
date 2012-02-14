@@ -14,8 +14,9 @@
 #include <sstream>
 #include <algorithm>
 #include <list>
+#include <ctype.h>
 
-#define MAX_WORD_LENGTH 30 // longest english word length
+#define MAX_WORD_LENGTH 30 // longest english word length    MAKE NOTE OF THIS IN WRITEUP
 
 using namespace std;
 
@@ -25,6 +26,7 @@ int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists);
 int write_to_sort(fd_t pipes_to_sort[][2], vector< vector<string> > temp_word_vec);
 vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pipes);
 void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec);
+void print_vector(vector<string> &vec_to_print);
 
 int main (int argc, char * argv[])
 {
@@ -34,7 +36,10 @@ int main (int argc, char * argv[])
 	vector< vector<string> > word_vec(num_of_proc, vector<string>());
 	vector< vector<string> > sorted_vecs_of_words;
 	
-	parse_words(word_vec, num_of_proc);
+	if (parse_words(word_vec, num_of_proc) == -1)
+	{
+		return -1;
+	}
 	
 	for(int i = 0; i < num_of_proc; i++)
 	{
@@ -129,10 +134,37 @@ int main (int argc, char * argv[])
 
 int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists)
 {
-	char word[MAX_WORD_LENGTH+1]; // +1 makes room for a newline character
+	char letter;
+	char word[MAX_WORD_LENGTH+2]; // +2 makes room for a newline and null character
 	int proc_index = 0; //index of word arr for child process "proc_index"
-	int index;
+	int index = 0;
 	
+
+	while (fscanf (stdin, "%c", &letter) != EOF)
+	{
+		if(isalpha(letter))
+		{
+			word[index++] = letter;
+		}
+		else if(index > MAX_WORD_LENGTH)
+		{
+			cerr << "Sorry, word " << word << "exceeds maximum allowed word length of " << MAX_WORD_LENGTH << 
+					".  If this is a major problem, please email ulrichm@onid.orst.edu, and a "
+					"revision will be considered.  Exiting...\n";
+			return -1;
+		}
+		else
+		{
+			word[index++] = '\n';
+			word[index] = '\0';
+			temp_word_vec[proc_index++].push_back(word);
+			if(proc_index == num_of_sub_lists) // loop back to beginning if at end
+				proc_index = 0;
+			index = 0;
+		}
+	}
+	
+	/*
 	while (fscanf (stdin, "%s", &word) != EOF)
 	{
 		index = 0;
@@ -146,7 +178,7 @@ int parse_words(vector< vector<string> > &temp_word_vec, int num_of_sub_lists)
 		if(proc_index == num_of_sub_lists)
 			proc_index = 0;
 	}
-	
+	*/
 	return 0;
 }
 
@@ -236,7 +268,7 @@ vector< vector<string> > read_from_sort(fd_t pipes_to_parent[][2], int num_of_pi
 void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec)
 {	
 	vector<string> last_words_in_subvecs; //A list would be better for this, since insertion time is constant.  Change if I have time before deadline.
-	string last_word_printed;
+	vector<string> words_printed;
 	string min_word;
 	string possible_word;
 	int min_word_index;
@@ -261,21 +293,25 @@ void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec)
 		last_words_in_subvecs.push_back(possible_word);
 	}
 		
-	last_word_printed = *min_element(last_words_in_subvecs.begin(), last_words_in_subvecs.end());
 	while(!last_words_in_subvecs.empty())
 	{
 		min_word_iterator = min_element(last_words_in_subvecs.begin(), last_words_in_subvecs.end());
 		min_word = *min_word_iterator;
 		min_word_index = (int)distance(last_words_in_subvecs.begin(), min_word_iterator);			
 		
-		if(strcmp(last_word_printed.c_str(), min_word.c_str()) != 0 || total_num_of_words == 0)
+		cout << "\nword checking: " << min_word << "in:\n";
+		print_vector(words_printed);
+
+		if(!binary_search(words_printed.begin(), words_printed.end(), min_word))
 		{
+			cout << "\nnot found\n";
 			cout << min_word;
-			last_word_printed = min_word;
 			unique_num_of_words++;
+			words_printed.push_back(min_word);
 		}
 		else
 		{
+			cout << "\nfound\n";
 			dup_num_of_words++;
 		}
 		total_num_of_words++;
@@ -291,4 +327,16 @@ void print_sorted_subvectors(vector< vector<string> > &sorted_subsets_vec)
 		
 	cout << "Unique words read: " << unique_num_of_words << "\nDuplicate words read: " << 
 					dup_num_of_words << "\nTotal words read: " << total_num_of_words << "\n";
+	
+	print_vector(words_printed);
 }
+
+
+void print_vector(vector<string> &vec_to_print)
+{
+	for(int i = 0; i < vec_to_print.size(); i++)
+		cout << vec_to_print[i];
+}
+
+
+
